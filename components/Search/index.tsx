@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import { BiSearch } from 'react-icons/bi'
 import api from '../../services/api';
@@ -6,19 +7,7 @@ import { Container } from './styles';
 function Search() {
   const [search, setSearch] = useState("")
   const [results, setResults] = useState([{ title: 'food' }])
-
-  const usToggleOnFocus = (initialState = false) => {
-    const [show, toggle] = useState(initialState);
-    
-    const eventHandlers = useMemo(() => ({
-      onFocus: () => toggle(true),
-      onBlur: () => toggle(false),
-    }), []);
-  
-    return [show, eventHandlers];
-  }
-
-  const [show, eventHandlers] = usToggleOnFocus();
+  const [show, setShow] = useState(false)
 
   useEffect(() => {
     const getComplete = async () => {
@@ -41,19 +30,26 @@ function Search() {
   }
 
   return (
-    <Container {...eventHandlers}>
-      {
-        show && 
-        <BiSearch className="searchIcon"/>
-      }
+    <Container 
+      onBlur={() => setShow(false)}
+      onFocus={() => setShow(true)}
+    >
+      <BiSearch className="searchIcon"/>
       <input type="text" placeholder="Search" value={search} onChange={(e) => setSearch(e.target.value)}/>
-      <div className="options">
-        {
-          results.map(result => {
-            return <p onClick={() => handleSearch(result.title)}>{result.title}</p>
-          })
-        }
-      </div>
+      {
+        search && 
+        <div className="options">
+          {
+            results.map((result: any) => {
+              return <Link href={`/${result.id}`}>
+                <p onClick={() => handleSearch(result.title)}>
+                  {result.title}
+                </p>
+              </Link>
+            })
+          }
+        </div>
+      }
     </Container>
   );
 };
